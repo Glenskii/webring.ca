@@ -232,6 +232,14 @@ function init() {
     overlay.hidden = true
     document.body.appendChild(overlay)
 
+    // Block Safari's proprietary gesture events to prevent native pinch-zoom
+    overlay.addEventListener('gesturestart', (e: Event) => {
+      e.preventDefault()
+    })
+
+    const viewportMeta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]')
+    const viewportDefault = viewportMeta?.getAttribute('content') ?? 'width=device-width, initial-scale=1.0'
+
     function enterFullscreen() {
       isFullscreen = true
       if (viewBoxAnimFrame) { cancelAnimationFrame(viewBoxAnimFrame); viewBoxAnimFrame = 0 }
@@ -243,6 +251,11 @@ function init() {
       btnExpand.setAttribute('aria-label', 'Close')
       svgEl.style.touchAction = 'none'
       simulation.alphaTarget(0)
+
+      // Prevent native browser zoom while in fullscreen
+      if (viewportMeta) {
+        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+      }
     }
 
     function exitFullscreen() {
@@ -254,6 +267,12 @@ function init() {
       btnExpand.innerHTML = expandIcon
       btnExpand.setAttribute('aria-label', 'Explore ring fullscreen')
       svgEl.style.touchAction = ''
+
+      // Restore normal viewport zoom behavior
+      if (viewportMeta) {
+        viewportMeta.setAttribute('content', viewportDefault)
+      }
+
       if (selectedSlug) {
         focusOnMember(selectedSlug)
       } else {
