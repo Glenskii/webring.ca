@@ -29,15 +29,6 @@
   var prevActiveIdx = -1;
   var isSettled = true;
 
-  function updatePanelVisibility(active) {
-    var prev = (active - 1 + PANEL_COUNT) % PANEL_COUNT;
-    var next = (active + 1) % PANEL_COUNT;
-    panels.forEach(function(p, i) {
-      p.classList.toggle('is-active-panel', i === active);
-      p.classList.toggle('is-nearby', i === prev || i === next);
-    });
-  }
-
   function computeRadius() {
     return Math.round(panelDim / (2 * Math.tan(Math.PI / PANEL_COUNT)));
   }
@@ -186,14 +177,16 @@
 
           unsettle();
 
-          // Update active dot + panel visibility
+          // Update active dot + panel pointer-events
           var norm = ((Math.round(currentAngle / ANGLE_STEP) % PANEL_COUNT) + PANEL_COUNT) % PANEL_COUNT;
           if (norm !== prevActiveIdx) {
             prevActiveIdx = norm;
             dots.forEach(function(dot, i) {
               dot.classList.toggle('is-active', i === norm);
             });
-            updatePanelVisibility(norm);
+            panels.forEach(function(p, i) {
+              p.classList.toggle('is-active-panel', i === norm);
+            });
             ring.dispatchEvent(new CustomEvent('panelchange', { detail: { index: norm } }));
           }
         });
@@ -306,7 +299,9 @@
       dots.forEach(function(dot, i) {
         dot.classList.toggle('is-active', i === norm);
       });
-      updatePanelVisibility(norm);
+      panels.forEach(function(p, i) {
+        p.classList.toggle('is-active-panel', i === norm);
+      });
       ring.dispatchEvent(new CustomEvent('panelchange', { detail: { index: norm } }));
     }
 
@@ -328,7 +323,7 @@
   var initIdx = ((Math.round(currentAngle / ANGLE_STEP) % PANEL_COUNT) + PANEL_COUNT) % PANEL_COUNT;
   prevActiveIdx = initIdx;
   dots.forEach(function(dot, i) { dot.classList.toggle('is-active', i === initIdx); });
-  updatePanelVisibility(initIdx);
+  panels.forEach(function(p, i) { p.classList.toggle('is-active-panel', i === initIdx); });
   ring.dispatchEvent(new CustomEvent('panelsettle', { detail: { index: initIdx } }));
 
   // ── Pause when hidden ──
