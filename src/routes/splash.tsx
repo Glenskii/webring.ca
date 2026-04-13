@@ -48,12 +48,12 @@ app.get('/', async (c) => {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>webring.ca</title>
-          <meta name="description" content="A webring for Canadian builders: developers, designers, and founders." />
+          <meta name="description" content="A webring of personal sites from Canadian developers, designers, and founders. Discover and connect with Canada's builder community." />
           <link rel="canonical" href="https://webring.ca/" />
           <meta name="theme-color" content="#AF272F" />
           <meta property="og:type" content="website" />
           <meta property="og:title" content="webring.ca" />
-          <meta property="og:description" content="A webring for Canadian builders: developers, designers, and founders." />
+          <meta property="og:description" content="A webring of personal sites from Canadian developers, designers, and founders. Discover and connect with Canada's builder community." />
           <meta property="og:url" content="https://webring.ca/" />
           <meta property="og:image" content="https://webring.ca/og-image.png" />
           <meta property="og:image:width" content="1200" />
@@ -62,7 +62,10 @@ app.get('/', async (c) => {
           <meta property="og:site_name" content="webring.ca" />
           <meta property="og:image:type" content="image/png" />
           <meta name="twitter:card" content="summary_large_image" />
+          <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+          <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+          <link rel="apple-touch-icon" href="/favicon-192.png" />
           <link rel="stylesheet" href="/fonts.css" />
           <link rel="stylesheet" href="/splash.css" />
         </head>

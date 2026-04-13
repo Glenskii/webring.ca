@@ -14,6 +14,8 @@ const Layout: FC<PropsWithChildren<{ title?: string }>> = ({ title, children }) 
           <title>{pageTitle}</title>
           <meta name="robots" content="noindex" />
           <meta name="theme-color" content="#AF272F" />
+          <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+          <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
           <link rel="stylesheet" href="/fonts.css" />
           <style>{raw(`

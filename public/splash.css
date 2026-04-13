@@ -1536,11 +1536,11 @@ body.has-ring-fullscreen {
   box-shadow: 0 0 4px var(--bg), 0 0 8px var(--bg);
 }
 
-/* Expand touch target to 44px without changing visual size */
+/* Expand touch target without overlapping adjacent dot hit areas */
 .ring-dot::before {
   content: '';
   position: absolute;
-  inset: -17px;
+  inset: -4px; /* 18px hit area = gap + dot, no overlap on desktop */
   border-radius: 50%;
 }
 
@@ -1576,7 +1576,7 @@ body.has-ring-fullscreen {
   }
 
   .ring-dot::before {
-    inset: -12px;
+    inset: -10px; /* 30px hit area = gap (20px) + dot (10px), no overlap on mobile */
   }
 
   .splash-inner {
