@@ -99,6 +99,7 @@
   // ── Touch (mobile) ──
   if (isMobile) {
     var touchStartY = 0;
+    var touchStartX = 0;
     var touchStartAngle = 0;
     var lastTouchY = 0;
     var lastTouchTime = 0;
@@ -106,10 +107,15 @@
     var isDragging = false;
     var dragRaf = 0;
     var pendingAngle = 0;
+    var isHorizontalScroll = false;
+    var directionLocked = false;
 
     ring.addEventListener('touchstart', function(e) {
       isDragging = true;
+      isHorizontalScroll = false;
+      directionLocked = false;
       velocity = 0;
+      touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
       touchStartAngle = currentAngle;
       pendingAngle = currentAngle;
@@ -120,6 +126,23 @@
     ring.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
       if (e.touches.length > 1) return;
+
+      // Direction lock: vertical swipes rotate the ring, horizontal swipes on
+      // the directory list fall through to native scroll. If a swipe starts on
+      // the list but is more vertical than horizontal, ring rotation wins.
+      if (!directionLocked) {
+        var dx = Math.abs(e.touches[0].clientX - touchStartX);
+        var dy = Math.abs(e.touches[0].clientY - touchStartY);
+        if (dx + dy > 8) {
+          directionLocked = true;
+          // Horizontal swipe on the member list = let browser handle it
+          if (dx > dy && e.target.closest && e.target.closest('.directory-list')) {
+            isHorizontalScroll = true;
+          }
+        }
+      }
+
+      if (isHorizontalScroll) return;
       e.preventDefault();
 
       var touchY = e.touches[0].clientY;
@@ -164,7 +187,11 @@
 
     function onTouchEnd() {
       isDragging = false;
+      var wasHorizontalScroll = isHorizontalScroll;
+      isHorizontalScroll = false;
+      directionLocked = false;
       if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
+      if (wasHorizontalScroll) return;
       currentAngle = pendingAngle;
 
       var nearest = snapAngle(currentAngle);

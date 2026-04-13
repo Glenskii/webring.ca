@@ -505,8 +505,10 @@ body {
   text-overflow: ellipsis;
 }
 
-.directory-row:hover .directory-row-site {
-  color: var(--accent);
+@media (hover: hover) {
+  .directory-row:hover .directory-row-site {
+    color: var(--accent);
+  }
 }
 
 .directory-row-city {
@@ -615,6 +617,9 @@ body {
   outline-offset: 1px;
 }
 
+.ring-expand-btn {
+  display: none;
+}
 
 /* Ring nodes */
 .ring-node {
@@ -690,6 +695,35 @@ body {
   fill: var(--accent);
 }
 
+/* Ring fullscreen explore mode */
+body.has-ring-fullscreen {
+  overflow: hidden;
+}
+
+.ring-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+}
+
+.ring-fullscreen-overlay .directory-ring-svg {
+  width: 100%;
+  height: 100%;
+  touch-action: none !important;
+}
+
+.ring-fullscreen-overlay .ring-zoom-controls {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1rem;
+  z-index: 101;
+}
+
+.ring-fullscreen-overlay .ring-node-label {
+  opacity: 0.6;
+}
+
 /* Mobile: directory stacks vertically */
 @media (max-width: 767px) {
   .about-inner {
@@ -723,10 +757,11 @@ body {
   }
 
   .directory-list-wrap {
-    flex: none;
+    flex: 0 0 auto;
     order: 2;
     overflow: visible;
     padding: 0;
+    max-height: 130px;
   }
 
   .directory-header {
@@ -760,28 +795,35 @@ body {
   }
 
   .directory-row {
+    position: relative;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25rem;
-    flex: 0 0 auto;
-    min-width: 130px;
-    max-width: 180px;
-    padding: 0.75rem;
+    gap: 0.2rem;
+    flex: 0 0 140px;
+    width: 140px;
+    height: 72px;
+    padding: 0.6rem 0.65rem;
     border: 1px solid var(--border);
     border-radius: 8px;
     scroll-snap-align: start;
+    overflow: hidden;
   }
 
   .directory-row-name {
     white-space: normal;
-    font-size: 0.85rem;
-    line-height: 1.3;
+    font-size: 0.8rem;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: calc(100% - 18px);
   }
 
   .directory-row-site {
     display: block;
     width: auto;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 500;
     color: var(--fg-muted);
     overflow: hidden;
@@ -791,7 +833,7 @@ body {
   .directory-row-city {
     width: auto;
     text-align: left;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .directory-row.is-selected {
@@ -800,23 +842,21 @@ body {
   }
 
   .directory-row-visit {
-    display: inline-block;
-    visibility: hidden;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0.45rem;
+    right: 0.45rem;
+    color: var(--fg-muted);
     text-decoration: none;
-    margin-top: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid var(--accent);
-    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
   }
 
   .directory-row.is-selected .directory-row-visit {
-    visibility: visible;
+    opacity: 1;
+    color: var(--accent);
   }
 
   .directory-ring-wrap {
@@ -825,7 +865,28 @@ body {
     width: 100%;
     min-height: 0;
     padding: 0 1rem;
-    pointer-events: none;
+    pointer-events: none; /* interactive children opt in with pointer-events: auto */
+  }
+
+  .ring-node-label {
+    opacity: 0.35;
+    font-size: 6px;
+    transition: opacity 0.2s;
+  }
+
+  .ring-node.is-highlighted .ring-node-label {
+    opacity: 1;
+  }
+
+  .directory-ring-wrap .ring-node-dot {
+    r: 7;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .ring-node-hit {
+    pointer-events: auto;
+    cursor: pointer;
   }
 
   .directory-search,
@@ -833,11 +894,30 @@ body {
     pointer-events: auto;
   }
 
+  .ring-expand-btn {
+    display: flex;
+  }
+
   .ring-zoom-controls {
-    display: none;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    top: auto;
+    gap: 0.25rem;
+    pointer-events: auto;
+  }
+
+  .ring-zoom-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  #ring-viz {
+    min-height: 220px;
   }
 
   .directory-ring-svg {
+    pointer-events: auto;
     touch-action: auto !important;
     cursor: default !important;
   }
@@ -1152,11 +1232,29 @@ body {
   }
   .preview-controls {
     padding: 0.6rem 1rem;
+    gap: 0.5rem;
   }
   .preview-nav {
     width: 44px;
     height: 44px;
     font-size: 1rem;
+  }
+  .preview-info {
+    flex-wrap: wrap;
+    gap: 0.2rem 0.4rem;
+  }
+  .preview-member-sep {
+    display: none;
+  }
+  .preview-member-name {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+  }
+  .preview-member-url {
+    font-size: 0.65rem;
+  }
+  .preview-member-city {
+    display: none;
   }
 }
 
@@ -1341,8 +1439,12 @@ body {
     bottom: 50%;
     transform: translateY(50%);
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1.75rem;
     height: auto;
+  }
+
+  .ring-dot::before {
+    inset: -12px;
   }
 
   .splash-inner {
@@ -1352,21 +1454,34 @@ body {
     min-height: calc(100dvh - 1.25rem);
   }
 
-  .hero-top { font-size: 24vw; }
-
   .splash-inner > header {
-    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .hero-top {
+    display: contents;
+  }
+
+  .hero-top .stretch-wide {
+    font-size: 18vw;
+    line-height: 0.78;
+  }
+
+  .hero-top .stretch-wide:first-child {
+    width: 100%;
+    font-size: 23vw;
   }
 
   .canada-flag {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    height: 17vw;
+    position: static;
+    height: 12vw;
+    margin-left: auto;
   }
 
   .splash-map {
-    width: min(100vw, 480px);
+    width: 115vw;
     max-width: none;
   }
 
@@ -1388,6 +1503,8 @@ body {
   .join-inner {
     width: calc(100% - 1.5rem);
     height: calc(100% - 1.5rem);
+    justify-content: center;
+    gap: 2rem;
   }
 
   .join-top {
@@ -1419,7 +1536,10 @@ body {
   }
 
   .join-leaf {
-    bottom: -10vw;
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw;
   }
 
   .join-steps {
