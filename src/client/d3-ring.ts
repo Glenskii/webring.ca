@@ -779,14 +779,23 @@ function init() {
   }
 
   function renderPage() {
-    const paginationActive = hasPagedListLayout() && !searchMatches
-    directoryListEl?.classList.toggle('is-paginated', hasPagedListLayout())
-    if (paginationEl) paginationEl.hidden = !paginationActive
+    const isSearching = !!searchMatches
+    const pagedLayout = hasPagedListLayout()
+    directoryListEl?.classList.toggle('is-paginated', pagedLayout)
+    if (paginationEl) paginationEl.hidden = !pagedLayout
 
-    if (!paginationActive) {
+    if (!pagedLayout) {
       rows.forEach(row => {
         row.style.display = ''
       })
+      return
+    }
+
+    if (isSearching) {
+      rows.forEach(row => { row.style.display = '' })
+      if (prevBtn) prevBtn.disabled = true
+      if (nextBtn) nextBtn.disabled = true
+      if (pageInfo) pageInfo.textContent = `1 / ${totalPages}`
       return
     }
 
@@ -888,6 +897,7 @@ function init() {
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       const q = searchInput.value.trim()
+      currentPage = 0
 
       if (q === '') {
         searchMatches = null
